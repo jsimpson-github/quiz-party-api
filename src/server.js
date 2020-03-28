@@ -16,6 +16,11 @@ io.on('connection', function(socket){
     socket.on('disconnect', function(){
         console.log('user disconnected');
     });
+
+    socket.on('join', data => {
+        console.log(data.name)
+        state.users.push(data.name)
+    })
 });
 
 app.get('/ping', function(request, response) {
