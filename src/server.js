@@ -8,7 +8,7 @@ const io = socketIO(server);
 app.set('port', 5000);
 
 const state = {
-    users: []
+    players: []
 }
 
 io.on('connection', function(socket){
@@ -19,7 +19,9 @@ io.on('connection', function(socket){
 
     socket.on('join', data => {
         console.log(data.name)
-        state.users.push(data.name)
+        state.players.push(data.name)
+
+        socket.emit('stateUpdated', state)
     })
 });
 
