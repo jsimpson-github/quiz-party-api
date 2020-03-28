@@ -1,11 +1,11 @@
-const express = require('express');
-const http = require('http');
-const socketIO = require('socket.io');
-const app = express();
-const server = http.Server(app);
-const io = socketIO(server);
+const express = require('express')
+const http = require('http')
+const socketIO = require('socket.io')
+const app = express()
+const server = http.Server(app)
+const io = socketIO(server)
 
-app.set('port', 5000);
+app.set('port', 5000)
 
 const state = {
     players: [],
@@ -31,10 +31,10 @@ io.on('connection', function(socket){
     });
 });
 
-app.get('/ping', function(request, response) {
-    response.send('pong');
-});
+app.get('/ping', (request, response) => {
+    response.send('pong')
+})
 
-server.listen(5000, function() {
-  console.log('Starting server on port 5000');
-});
+server.listen(5000, () => {
+  console.log('Starting server on port 5000')
+})
