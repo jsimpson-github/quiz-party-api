@@ -8,7 +8,10 @@ const io = socketIO(server);
 app.set('port', 5000);
 
 const state = {
-    players: []
+    players: [],
+    question: {
+        text: ""
+    }
 }
 
 io.on('connection', function(socket){
@@ -20,9 +23,12 @@ io.on('connection', function(socket){
     socket.on('join', data => {
         console.log(data.name)
         state.players.push(data.name)
-
-        socket.emit('stateUpdated', state)
-    })
+        io.emit('stateUpdated', state)
+    });
+    socket.on('ask', data => {
+        state.question = ({name: data.name, text: data.text, answers: {}})
+        io.emit('stateUpdated', state)
+    });
 });
 
 app.get('/ping', function(request, response) {
