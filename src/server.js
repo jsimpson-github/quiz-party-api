@@ -9,9 +9,7 @@ app.set('port', 5000)
 
 const state = {
     players: [],
-    question: {
-        text: ""
-    }
+    currentQuestion: null
 }
 
 io.on('connection', function(socket){
@@ -21,14 +19,21 @@ io.on('connection', function(socket){
     });
 
     socket.on('join', data => {
-        console.log(data.name)
         state.players.push(data.name)
         io.emit('stateUpdated', state)
     });
-    socket.on('ask', data => {
-        state.question = ({name: data.name, text: data.text, answers: {}})
+
+    socket.on('ask', ({ name, text }) => {
+        state.currentQuestion = ({ name, text, answers: {}})
         io.emit('stateUpdated', state)
     });
+
+    socket.on('answer', ({ name, answer }) => {
+        state.currentQuestion.answers[name] = answer
+        io.emit('stateUpdated', state)
+    });
+
+    io.emit('stateUpdated', state)
 });
 
 app.get('/ping', (request, response) => {
