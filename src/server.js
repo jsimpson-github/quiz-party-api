@@ -30,7 +30,7 @@ io.on("connection", function (socket) {
     });
 
     socket.on("ask", ({ name, text }) => {
-        state.currentQuestion = { name, text, answers: {} };
+        state.currentQuestion = { name, text, answers: {}, forceMark: false };
         io.emit("stateUpdated", state);
     });
 
@@ -47,6 +47,11 @@ io.on("connection", function (socket) {
 
     socket.on("leave", ({ name }) => {
         state.players = state.players.filter((player) => player.name != name);
+        io.emit("stateUpdated", state);
+    });
+
+    socket.on("forceMark", () => {
+        state.currentQuestion.forceMark = true;
         io.emit("stateUpdated", state);
     });
 
