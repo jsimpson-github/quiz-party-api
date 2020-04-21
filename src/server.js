@@ -7,55 +7,73 @@ const io = socketIO(server);
 
 app.set("port", 5000);
 
-const state = {
-    players: [],
-    currentQuestion: null,
-};
+const state = {};
 
 io.on("connection", function (socket) {
     console.log("a user connected");
     socket.on("disconnect", function () {
-        if (true) {
-            console.log("user disconnected");
-        }
+        console.log("user disconnected");
     });
 
-    socket.on("join", (data) => {
-        let newPlayer = {
+    socket.on("newQuiz", (data) => {
+        id = Object.keys(state).length + 1;
+        let quiz = {
             name: data.name,
+            id: id,
+            players: [],
+            currentQuestion: null,
+        };
+        state[id] = quiz;
+        socket.emit("quizAdded", id);
+    });
+
+    socket.on("join", ({ id, name }) => {
+        let newPlayer = {
+            name: name,
             score: 0,
         };
-        state.players.push(newPlayer);
-        io.emit("stateUpdated", state);
+        state[id].players.push(newPlayer);
+        io.emit("stateUpdated", state[id]);
     });
 
-    socket.on("ask", ({ name, text }) => {
-        state.currentQuestion = { name, text, answers: {}, forceMark: false };
-        io.emit("stateUpdated", state);
+    socket.on("ask", ({ id, name, text }) => {
+        state[id].currentQuestion = {
+            name,
+            text,
+            answers: {},
+            forceMark: false,
+        };
+        io.emit("stateUpdated", state[id]);
     });
 
-    socket.on("answer", ({ name, answer }) => {
-        state.currentQuestion.answers[name] = answer;
-        io.emit("stateUpdated", state);
+    socket.on("answer", ({ id, name, answer }) => {
+        state[id].currentQuestion.answers[name] = answer;
+        io.emit("stateUpdated", state[id]);
     });
 
-    socket.on("results", ({ results }) => {
-        updateScores(results);
-        state.currentQuestion = null;
-        io.emit("stateUpdated", state);
+    socket.on("results", ({ id, results }) => {
+        updateScores(id, results);
+        state[id].currentQuestion = null;
+        io.emit("stateUpdated", state[id]);
     });
 
-    socket.on("leave", ({ name }) => {
-        state.players = state.players.filter((player) => player.name != name);
-        io.emit("stateUpdated", state);
+    socket.on("leave", ({ id, name }) => {
+        state[id].players = state[id].players.filter(
+            (player) => player.name != name
+        );
+        io.emit("stateUpdated", state[id]);
     });
 
-    socket.on("forceMark", () => {
-        state.currentQuestion.forceMark = true;
-        io.emit("stateUpdated", state);
+    socket.on("forceMark", ({ id }) => {
+        state[id].currentQuestion.forceMark = true;
+        io.emit("stateUpdated", state[id]);
     });
 
-    io.emit("stateUpdated", state);
+    socket.on("getState", ({ id }) => {
+        io.emit("stateUpdated", state[id]);
+    });
+
+    io.emit("connected");
 });
 
 app.get("/ping", (request, response) => {
@@ -66,8 +84,8 @@ server.listen(5000, () => {
     console.log("Starting server on port 5000");
 });
 
-function updateScores(results) {
-    state.players.forEach((player) => {
+function updateScores(id, results) {
+    state[id].players.forEach((player) => {
         if (results[player.name]) {
             player.score += results[player.name];
         }
