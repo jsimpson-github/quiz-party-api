@@ -6,6 +6,7 @@ const cors = require("cors");
 app.use(cors());
 const server = http.Server(app);
 const io = socketIO(server);
+io.origins("*:*");
 const PORT = process.env.PORT || 5000;
 
 app.set("port", PORT);
