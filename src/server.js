@@ -4,8 +4,9 @@ const socketIO = require("socket.io");
 const app = express();
 const server = http.Server(app);
 const io = socketIO(server);
+const PORT = process.env.PORT || 5000;
 
-app.set("port", 5000);
+app.set("port", PORT);
 
 const state = {};
 
