@@ -3,11 +3,11 @@ const http = require("http");
 const socketIO = require("socket.io");
 const app = express();
 const cors = require("cors");
+app.use(cors());
 const server = http.Server(app);
 const io = socketIO(server);
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
 app.set("port", PORT);
 
 const state = {};
