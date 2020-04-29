@@ -33,6 +33,7 @@ io.on("connection", function (socket) {
             players: [],
             currentQuestion: null,
             active: true,
+            typing: [],
         };
         state[id] = quiz;
         fn(id);
@@ -77,6 +78,16 @@ io.on("connection", function (socket) {
 
     socket.on("forceMark", ({ id }) => {
         state[id].currentQuestion.forceMark = true;
+        io.to(id).emit("stateUpdated", state[id]);
+    });
+
+    socket.on("typing", ({ id, name, active }) => {
+        const typing = state[id].typing;
+        if (!active) {
+            state[id].typing = typing.filter((player) => player != name);
+        } else if (!typing.includes(name)) {
+            state[id].typing.push(name);
+        }
         io.to(id).emit("stateUpdated", state[id]);
     });
 
