@@ -93,7 +93,7 @@ app.get("/ping", (request, response) => {
 });
 
 server.listen(PORT, () => {
-    console.log("Starting server on port 5000");
+    console.log("Starting server on port " + PORT);
 });
 
 function updateScores(id, results) {
