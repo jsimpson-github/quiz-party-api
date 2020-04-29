@@ -92,7 +92,7 @@ app.get("/ping", (request, response) => {
     response.send("pong");
 });
 
-server.listen(5000, () => {
+server.listen(PORT, () => {
     console.log("Starting server on port 5000");
 });
 
