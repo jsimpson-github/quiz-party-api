@@ -35,6 +35,7 @@ io.on("connection", function (socket) {
             currentQuestion: null,
             active: true,
             typing: [],
+            notification: false,
         };
         state[id] = quiz;
         fn(id);
@@ -74,6 +75,18 @@ io.on("connection", function (socket) {
         state[id].players = state[id].players.filter(
             (player) => player.name != name
         );
+        addNotification(id, name + " left the quiz.");
+        io.to(id).emit("stateUpdated", state[id]);
+    });
+
+    socket.on("remove", ({ id, name, adminName }) => {
+        state[id].players = state[id].players.filter(
+            (player) => player.name != name
+        );
+        addNotification(
+            id,
+            adminName + " kicked out " + name + " from the quiz."
+        );
         io.to(id).emit("stateUpdated", state[id]);
     });
 
@@ -92,8 +105,12 @@ io.on("connection", function (socket) {
         io.to(id).emit("stateUpdated", state[id]);
     });
 
-    socket.on("finish", ({ id }) => {
+    socket.on("finish", ({ id, name }) => {
         state[id].active = false;
+        addNotification(
+            id,
+            name + " finished the quiz! See your scores below."
+        );
         io.to(id).emit("stateUpdated", state[id]);
     });
 
@@ -108,10 +125,18 @@ server.listen(PORT, () => {
     console.log("Starting server on port " + PORT);
 });
 
-function updateScores(id, results) {
+const updateScores = (id, results) => {
     state[id].players.forEach((player) => {
         if (results[player.name]) {
             player.score += results[player.name];
         }
     });
-}
+};
+
+addNotification = (id, message) => {
+    state[id].notification = message;
+    setTimeout(() => {
+        state[id].notification = false;
+        io.to(id).emit("stateUpdated", state[id]);
+    }, 10000);
+};
