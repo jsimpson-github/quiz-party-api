@@ -8,6 +8,7 @@ const server = http.Server(app);
 const io = socketIO(server);
 io.origins("*:*");
 const PORT = process.env.PORT || 5000;
+const randomWords = require("random-words");
 
 app.set("port", PORT);
 
@@ -26,7 +27,7 @@ io.on("connection", function (socket) {
     });
 
     socket.on("newQuiz", (data, fn) => {
-        id = Object.keys(state).length + 1;
+        id = randomWords({ exactly: 1, wordsPerString: 2, separator: "-" });
         let quiz = {
             name: data.name,
             id: id,
