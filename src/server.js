@@ -106,11 +106,8 @@ io.on("connection", function (socket) {
 
     socket.on("finish", ({ id, name }) => {
         state[id].active = false;
-        addNotification(
-            id,
-            name + " finished the quiz! See your scores below."
-        );
         io.to(id).emit("stateUpdated", state[id]);
+        io.to(id).emit("quizFinished", name);
     });
 
     io.emit("connected");
@@ -130,8 +127,4 @@ const updateScores = (id, results) => {
             player.score += results[player.name];
         }
     });
-};
-
-addNotification = (id, message) => {
-    io.to(id).emit("playerLeft", message);
 };
