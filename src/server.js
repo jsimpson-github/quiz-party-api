@@ -35,7 +35,6 @@ io.on("connection", function (socket) {
             currentQuestion: null,
             active: true,
             typing: [],
-            notification: false,
         };
         state[id] = quiz;
         fn(id);
@@ -75,8 +74,8 @@ io.on("connection", function (socket) {
         state[id].players = state[id].players.filter(
             (player) => player.name != name
         );
-        addNotification(id, name + " left the quiz.");
         io.to(id).emit("stateUpdated", state[id]);
+        io.to(id).emit("playerLeft", name);
     });
 
     socket.on("remove", ({ id, name, adminName }) => {
@@ -134,9 +133,5 @@ const updateScores = (id, results) => {
 };
 
 addNotification = (id, message) => {
-    state[id].notification = message;
-    setTimeout(() => {
-        state[id].notification = false;
-        io.to(id).emit("stateUpdated", state[id]);
-    }, 10000);
+    io.to(id).emit("playerLeft", message);
 };
