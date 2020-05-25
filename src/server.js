@@ -30,11 +30,12 @@ io.on("connection", function (socket) {
         id = randomWords({ exactly: 1, wordsPerString: 2, separator: "-" });
         let quiz = {
             name: data.name,
-            id: id,
+            id: id.join(),
             players: [],
             currentQuestion: null,
             active: true,
             typing: [],
+            showScores: false,
         };
         state[id] = quiz;
         fn(id);
@@ -61,6 +62,11 @@ io.on("connection", function (socket) {
 
     socket.on("answer", ({ id, name, answer }) => {
         state[id].currentQuestion.answers[name] = answer;
+        io.to(id).emit("stateUpdated", state[id]);
+    });
+
+    socket.on("showScores", ({ id }) => {
+        state[id].showScores = !state[id].showScores;
         io.to(id).emit("stateUpdated", state[id]);
     });
 
