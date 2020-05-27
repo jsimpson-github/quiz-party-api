@@ -116,6 +116,13 @@ io.on("connection", function (socket) {
         io.to(id).emit("quizFinished", name);
     });
 
+    socket.on("adjustScores", ({ id, scores, admin }) => {
+        adjustScores(id, scores);
+        io.to(id).emit("stateUpdated", state[id]);
+        const updatedNames = Object.keys(scores);
+        io.to(id).emit("scoresAdjusted", updatedNames, admin);
+    });
+
     io.emit("connected");
 });
 
@@ -131,6 +138,14 @@ const updateScores = (id, results) => {
     state[id].players.forEach((player) => {
         if (results[player.name]) {
             player.score += results[player.name];
+        }
+    });
+};
+
+const adjustScores = (id, scores) => {
+    state[id].players.forEach((player) => {
+        if (scores[player.name]) {
+            player.score = parseFloat(scores[player.name]).toFixed(1);
         }
     });
 };
