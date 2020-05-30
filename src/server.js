@@ -117,10 +117,9 @@ io.on("connection", function (socket) {
     });
 
     socket.on("adjustScores", ({ id, scores, admin }) => {
-        adjustScores(id, scores);
+        const playersAdjusted = adjustScores(id, scores);
         io.to(id).emit("stateUpdated", state[id]);
-        const updatedNames = Object.keys(scores);
-        io.to(id).emit("scoresAdjusted", updatedNames, admin);
+        io.to(id).emit("scoresAdjusted", playersAdjusted, admin);
     });
 
     io.emit("connected");
@@ -143,9 +142,12 @@ const updateScores = (id, results) => {
 };
 
 const adjustScores = (id, scores) => {
+    const playersAdjusted = [];
     state[id].players.forEach((player) => {
-        if (scores[player.name]) {
-            player.score = parseFloat(scores[player.name]).toFixed(1);
+        if (scores[player.name] && scores[player.name] != player.score) {
+            player.score = parseFloat(scores[player.name]);
+            playersAdjusted.push(player.name);
         }
     });
+    return playersAdjusted;
 };
