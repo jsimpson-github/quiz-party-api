@@ -65,9 +65,10 @@ io.on("connection", function (socket) {
         io.to(id).emit("stateUpdated", state[id]);
     });
 
-    socket.on("showScores", ({ id }) => {
+    socket.on("showScores", ({ id, admin }) => {
         state[id].showScores = !state[id].showScores;
         io.to(id).emit("stateUpdated", state[id]);
+        io.to(id).emit("scoresToggled", state[id].showScores, admin);
     });
 
     socket.on("results", ({ id, results }) => {
