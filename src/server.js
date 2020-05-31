@@ -35,7 +35,7 @@ io.on("connection", function (socket) {
             currentQuestion: null,
             active: true,
             typing: [],
-            showScores: false,
+            showScores: true,
         };
         state[id] = quiz;
         fn(id);
