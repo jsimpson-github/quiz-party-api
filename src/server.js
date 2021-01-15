@@ -123,6 +123,14 @@ io.on("connection", function (socket) {
         io.to(id).emit("scoresAdjusted", playersAdjusted, admin);
     });
 
+    socket.on("removePlayer", ({ id, name, admin }) => {
+        state[id].players = state[id].players.filter(
+            (player) => player.name != name
+        );
+        io.to(id).emit("stateUpdated", state[id]);
+        io.to(id).emit("playerRemoved", name, admin);
+    });
+
     io.emit("connected");
 });
 
